@@ -26,9 +26,11 @@ La base est organisée en deux parties :
 - `analytics` : données transformées et prêtes à être utilisées
 
 - Image 1 : création de la table `raw_weather` après l’extraction Python  
-- Image 2 : génération de la vue `weather_alerts` via dbt dans le schéma `analytics`
 
 ![Arborescence du schéma public](assets/db_tree_public.png)  
+
+- Image 2 : génération de la vue `weather_alerts` via dbt dans le schéma `analytics`
+
 ![Arborescence du schéma analytics](assets/db_tree_analytics.png)
 
 ---
@@ -38,11 +40,12 @@ La base est organisée en deux parties :
 - Image 3 : données brutes issues de l’API OpenWeatherMap  
   (température, vent en m/s, description, date)
 
+![Données brutes](assets/raw_data_view.png)  
+
 - Image 4 : données transformées avec dbt  
   - conversion du vent en km/h  
   - génération d’un statut métier (`TRAFIC NORMAL` dans cet exemple)
 
-![Données brutes](assets/raw_data_view.png)  
 ![Données transformées](assets/weather_alerts_view.png)
 
 ---
