@@ -29,7 +29,7 @@ timestamp = datetime.now()
 
 print(f"- Données reçues : {temp}°C, Vent: {wind_speed} m/s, Temps: {weather_desc}")
 
-# 3. On ouvre le coffre-fort et on charge la donnée (Load)
+# 3. On charge la donnée (Load)
 print("- Connexion à la base de données...")
 conn = psycopg2.connect(
     dbname=os.getenv("DB_NAME"),
@@ -58,7 +58,7 @@ cursor.execute("""
     VALUES (%s, %s, %s, %s, %s);
 """, (CITY, temp, wind_speed, weather_desc, timestamp))
 
-# On valide la transaction et on ferme la porte
+# On valide la transaction et on ferme
 conn.commit()
 cursor.close()
 conn.close()

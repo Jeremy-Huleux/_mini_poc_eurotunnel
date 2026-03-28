@@ -3,7 +3,7 @@ WITH raw_data AS (
     SELECT * FROM public.raw_weather
 )
 
--- Étape 2 : Appliquer nos transformations et nos règles métiers
+-- Étape 2 : Appliquer les transformations et les règles métiers
 SELECT
     id,
     city AS terminal_city,
@@ -12,8 +12,7 @@ SELECT
     ROUND((wind_speed * 3.6)::numeric, 2) AS wind_speed_kmh,
     description AS weather_conditions,
     date_extracted,
-    
-    -- Le statut d'alerte Eurotunnel
+    -- Le statut d'alerte Eurotunnel (règles métiers)
     CASE
         WHEN (wind_speed * 3.6) > 90 THEN 'ALERTE ROUGE - Risque perturbation Ferries, anticiper affluence'
         WHEN (wind_speed * 3.6) > 50 THEN 'ALERTE ORANGE - Vent fort, prudence'
