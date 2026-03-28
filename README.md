@@ -164,3 +164,8 @@ Ce projet a pour objectif de montrer :
 - une première approche orientée métier  
 
 Il s’agit d’une base qui peut être étendue vers une architecture data plus complète.
+
+## Paternité & Licence
+Ce projet a été pensé et développé de A à Z par **Jérémy Huleux** pour servir de Proof of Concept (Portfolio) dans le cadre de ma recherche de stage en Data Engineering.
+
+Le code est mis à disposition sous **licence MIT**. L'objectif n'est pas de proposer un produit commercialisé, mais de démontrer concrètement mes compétences techniques (Python, dbt, Docker). Vous êtes totalement libres de vous en inspirer, de le tester ou de le réutiliser au sein de vos équipes, tant que la paternité initiale (le nom de l'auteur) est conservée.
