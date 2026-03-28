@@ -1,68 +1,163 @@
-# 🚄 Eurotunnel Weather & Traffic Pipeline (Mini-POC)
+# Eurotunnel weather & traffic pipeline (mini-POC)
 
-## 🎯 Objectif Métier
-Ce projet est un Proof of Concept (POC) de Data Engineering visant à croiser les conditions météorologiques du détroit du Pas-de-Calais avec les enjeux de trafic d'Eurotunnel (Getlink). 
+## Objectif du projet
 
-**Le contexte :** Une tempête ou des vents violents empêchent les ferries (DFDS, P&O) de sortir du port, ce qui reporte massivement et en urgence le trafic fret et passagers sur le tunnel sous la Manche, créant des congestions majeures. Ce pipeline ingère, stocke et transforme la donnée météorologique brute pour créer des statuts d'alerte automatisés, première étape pour anticiper ces pics d'affluence.
+Ce projet est un mini Proof of Concept en Data Engineering.  
+L’objectif est de croiser les conditions météo dans le détroit du Pas-de-Calais avec les impacts possibles sur le trafic d’Eurotunnel (Getlink).
 
-## 🛠️ Stack Technique
-* **Extraction (Extract) :** Python (`requests`) via l'API OpenWeatherMap.
-* **Base de données (Load) :** PostgreSQL.
-* **Infrastructure :** Docker & Docker Compose.
-* **Transformation (Transform) :** dbt (Data Build Tool).
-* **Sécurité :** Gestion des secrets via variables d'environnement (`.env`).
+Concrètement, lorsqu’il y a des vents forts ou une tempête, les ferries (DFDS, P&O) peuvent être bloqués au port. Une partie du trafic est alors redirigée vers le tunnel sous la Manche, ce qui peut entraîner des pics d’affluence importants.
 
-## 📋 Prérequis
-Avant de lancer ce projet, assurez-vous d'avoir installé sur votre machine :
-- [Docker](https://www.docker.com/) et Docker Compose.
-- [Python 3.8+](https://www.python.org/).
-- Un compte gratuit sur [OpenWeatherMap](https://openweathermap.org/) pour obtenir une clé API.
+Ce projet propose une première approche pour anticiper ces situations en :
+- récupérant des données météo
+- les stockant proprement
+- les transformant
+- générant un statut d’alerte simple
 
-## 🚀 Guide d'installation et d'exécution
+---
+
+## Résultat du pipeline
+
+Le projet couvre tout le cycle de la donnée : ingestion, stockage, transformation et exposition.
+
+### Structure de la base
+
+La base est organisée en deux parties :
+- `raw` : données brutes
+- `analytics` : données transformées et prêtes à être utilisées
+
+- Image 1 : création de la table `raw_weather` après l’extraction Python  
+- Image 2 : génération de la vue `weather_alerts` via dbt dans le schéma `analytics`
+
+![Arborescence du schéma public](assets/db_tree_public.png)  
+![Arborescence du schéma analytics](assets/db_tree_analytics.png)
+
+---
+
+### Transformation des données
+
+- Image 3 : données brutes issues de l’API OpenWeatherMap  
+  (température, vent en m/s, description, date)
+
+- Image 4 : données transformées avec dbt  
+  - conversion du vent en km/h  
+  - génération d’un statut métier (`TRAFIC NORMAL` dans cet exemple)
+
+![Données brutes](assets/raw_data_view.png)  
+![Données transformées](assets/weather_alerts_view.png)
+
+---
+
+## Stack technique
+
+- Extraction : Python (`requests`) via l’API OpenWeatherMap  
+- Base de données : PostgreSQL  
+- Infrastructure : Docker & Docker Compose  
+- Transformation : dbt  
+- Sécurité : variables d’environnement (`.env`)
+
+---
+
+## Prérequis
+
+- Docker et Docker Compose  
+- Python 3.8+  
+- Une clé API OpenWeatherMap
+
+---
+
+## Installation et exécution
 
 ### 1. Cloner le projet
+
 ```bash
-git clone [https://github.com/VOTRE_NOM_UTILISATEUR/poc-eurotunnel-data.git](https://github.com/VOTRE_NOM_UTILISATEUR/poc-eurotunnel-data.git)
+git clone https://github.com/Jeremy-Huleux/_mini_poc_eurotunnel.git
 cd poc-eurotunnel-data
 ```
 
-### 2. Configuration et Sécurité (Le fichier .env)
-Ce projet utilise des variables d'environnement pour sécuriser les mots de passe et les clés API.
-1. Allez sur [OpenWeatherMap](https://openweathermap.org/), créez un compte gratuit et récupérez votre clé API dans la section "My API keys".
-2. À la racine du projet, copiez le fichier d'exemple pour créer votre propre fichier de configuration :
-   * Sous Linux/Mac : `cp .env.example .env`
-   * Sous Windows : `copy .env.example .env`
-3. Ouvrez le fichier `.env` nouvellement créé et insérez votre clé API à la ligne `OPENWEATHER_API_KEY=...`. Vous pouvez laisser les autres paramètres de base de données par défaut pour un test local.
+---
 
-### 3. Lancer l'infrastructure (Base de données)
-Démarrez le conteneur PostgreSQL en arrière-plan :
+### 2. Configuration (.env)
+
+1. Créer un compte sur OpenWeatherMap  
+2. Récupérer une clé API  
+3. Copier le fichier d’exemple :
+
+```bash
+cp .env.example .env   # Linux / Mac
+copy .env.example .env # Windows
+```
+
+4. Ajouter la clé API dans le fichier `.env` :
+
+```env
+OPENWEATHER_API_KEY=...
+```
+
+---
+
+### 3. Lancer la base de données
+
 ```bash
 docker compose up -d
 ```
-*(La base de données sera accessible sur le port défini dans votre fichier `.env`, par exemple 5433).*
 
-### 4. Préparer l'environnement Python
-Créez un environnement virtuel isolé et installez les dépendances :
+---
+
+### 4. Préparer l’environnement Python
+
 ```bash
 python -m venv venv
-# Activation sous Windows : venv\Scripts\activate
-# Activation sous Mac/Linux : source venv/bin/activate
+
+# Windows
+venv\Scripts\activate
+
+# Mac / Linux
+source venv/bin/activate
 
 pip install -r requirements.txt
 ```
-*(Note : Si vous n'avez pas de fichier requirements.txt, lancez simplement : `pip install requests psycopg2-binary python-dotenv dbt-postgres`)*
 
-### 5. Lancer l'ingestion de données (Extract & Load)
-Exécutez le script Python pour interroger l'API Météo et charger la donnée brute dans PostgreSQL :
+---
+
+### 5. Lancer l’ingestion
+
 ```bash
 python extract.py
 ```
 
-### 6. Lancer la transformation métier (Transform avec dbt)
-Naviguez dans le dossier dbt et lancez la compilation des modèles pour créer les tables d'alertes finalisées :
+Les données sont insérées dans la table `raw_weather`.
+
+---
+
+### 6. Lancer la transformation
+
 ```bash
 cd transform_eurotunnel
 dbt run
 ```
 
-🎉 **C'est terminé !** Les données nettoyées, converties (km/h) et enrichies (statuts d'alerte) sont maintenant disponibles dans le schéma `analytics` de la base de données, prêtes à être connectées à un outil de BI.
+Les données transformées sont disponibles dans le schéma `analytics`.
+
+---
+
+## Pistes d’amélioration
+
+Ce projet est volontairement simple. Plusieurs évolutions sont possibles :
+
+- Automatisation du pipeline avec un orchestrateur (Airflow, Prefect)  
+- Déploiement sur un environnement cloud (AWS, GCP, Azure)  
+- Ajout de données métier (trafic réel Eurotunnel)  
+- Mise en place d’un outil de visualisation (Power BI, Metabase)  
+- Ajout de tests de qualité de données avec dbt  
+- Intégration d’une CI/CD (GitHub Actions)
+
+---
+
+## Remarque
+
+Ce projet a pour objectif de montrer :
+- une structuration claire des données  
+- une séparation entre données brutes et données transformées  
+- une première approche orientée métier  
+
+Il s’agit d’une base qui peut être étendue vers une architecture data plus complète.
